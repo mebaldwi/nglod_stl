@@ -1,8 +1,7 @@
-torch==1.6.0
-torchvision==0.7.0
+torch
+torchvision==0.19
 tensorboard
 matplotlib
-git+https://github.com/tinyobjloader/tinyobjloader.git#subdirectory=python
 pybind11
 trimesh>=3.0
 tqdm

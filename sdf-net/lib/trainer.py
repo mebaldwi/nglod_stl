@@ -108,6 +108,7 @@ class Trainer(object):
         # Set device to use
         self.use_cuda = torch.cuda.is_available()
         self.device = torch.device('cuda' if self.use_cuda else 'cpu')
+        print("Trainer Device:", self.device)
         device_name = torch.cuda.get_device_name(device=self.device)
         log.info(f'Using {device_name} with CUDA v{torch.version.cuda}')
 
@@ -474,12 +475,12 @@ class Trainer(object):
 
             self.timer.check('iterations done')
 
-            self.post_epoch(epoch)
+            # self.post_epoch(epoch)
 
             if self.args.validator is not None and epoch % self.args.valid_every == 0:
                 self.validate(epoch)
                 self.timer.check('validate')
-
+        self.save_model(epoch)
         self.writer.close()
     
     #######################

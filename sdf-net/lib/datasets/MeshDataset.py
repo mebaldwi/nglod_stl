@@ -23,7 +23,7 @@ import os
 
 import torch
 from torch.utils.data import Dataset
-
+import open3d as o3d
 import numpy as np
 import mesh2sdf
 
@@ -62,11 +62,15 @@ class MeshDataset(Dataset):
         #    assert False and "Data does not exist and raw obj file not specified"
         #else:
         
-        if self.sample_tex:
-            out = load_obj(self.dataset_path, load_materials=True)
-            self.V, self.F, self.texv, self.texf, self.mats = out
-        else:
-            self.V, self.F = load_obj(self.dataset_path)
+        # if self.sample_tex:
+        #     out = load_obj(self.dataset_path, load_materials=True)
+        #     self.V, self.F, self.texv, self.texf, self.mats = out
+        # else:
+        #     self.V, self.F = load_obj(self.dataset_path)
+        mesh = o3d.io.read_triangle_mesh(self.dataset_path)
+        self.V = np.asarray(mesh.vertices)
+        self.F = torch.LongTensor(np.asarray(mesh.triangles))
+        self.V = torch.FloatTensor(self.V).reshape(-1, 3)
 
         self.V, self.F = normalize(self.V, self.F)
         self.mesh = self.V[self.F]
@@ -82,8 +86,7 @@ class MeshDataset(Dataset):
         else:
             self.pts = point_sample(self.V, self.F, self.sample_mode, self.num_samples)
 
-        self.d = compute_sdf(self.V.cuda(), self.F.cuda(), self.pts.cuda())   
-
+        self.d = compute_sdf(self.V.cuda(), self.F.cuda(), self.pts.cuda())
         self.d = self.d[...,None]
         self.d = self.d.cpu()
         self.pts = self.pts.cpu()
