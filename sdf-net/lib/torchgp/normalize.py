@@ -24,15 +24,17 @@ import torch
 def normalize(
     V : torch.Tensor,
     F : torch.Tensor):
+    """Normalize mesh vertices and query points to fit inside a unit cube [-1,1]^3."""
+    V_max, _ = torch.max(V, dim=0)  # Get max along each axis
+    V_min, _ = torch.min(V, dim=0)  # Get min along each axis
+    V_center = (V_max + V_min) / 2.  # Compute center
+    V = V - V_center  # Shift to origin
 
-    # Normalize mesh
-    V_max, _ = torch.max(V, dim=0)
-    V_min, _ = torch.min(V, dim=0)
-    V_center = (V_max + V_min) / 2.
-    V = V - V_center
+    # Scale uniformly so the longest axis fits within [-1,1]
+    V_range = V_max - V_min  # Compute range along each axis
+    max_range = torch.max(V_range)  # Find the largest range
+    V_scale = 2.0 / max_range  # Scale so that the largest axis spans [-1,1]
 
-    # Find the max distance to origin
-    max_dist = torch.sqrt(torch.max(torch.sum(V**2, dim=-1)))
-    V_scale = 1. / max_dist
     V *= V_scale
+
     return V, F
