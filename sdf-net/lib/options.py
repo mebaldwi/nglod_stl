@@ -49,6 +49,8 @@ def parse_options(return_parser=False):
                               help='NumPy random seed.')
     global_group.add_argument('--ngc', action='store_true',
                               help='Use NGC arguments.')
+    global_group.add_argument('--device', type=str, default='cpu',
+                              help='The assigned device the computations should operate on.')
 
     # Architecture for network
     net_group = parser.add_argument_group('net')
@@ -245,7 +247,8 @@ def argparse_to_str(parser):
         parser (argparse.parser): CLI parser
     """
 
-    args = parser.parse_args()
+    # args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
 
     args_dict = {}
     for group in parser._action_groups:

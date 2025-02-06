@@ -41,6 +41,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Dataset, DataLoader
 from tqdm.auto import tqdm
+import csv
 
 from lib.datasets import *
 from lib.diffutils import positional_encoding, gradient
@@ -107,7 +108,7 @@ class Trainer(object):
         
         # Set device to use
         self.use_cuda = torch.cuda.is_available()
-        self.device = torch.device('cuda' if self.use_cuda else 'cpu')
+        self.device = self.args.device
         print("Trainer Device:", self.device)
         device_name = torch.cuda.get_device_name(device=self.device)
         log.info(f'Using {device_name} with CUDA v{torch.version.cuda}')
