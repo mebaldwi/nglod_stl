@@ -102,9 +102,9 @@ class Trainer(object):
         self.args_str = args_str
         
         self.args.epochs += 1
-
-        self.timer = PerfTimer(activate=self.args.perf)
-        self.timer.reset()
+        if self.args.perf:
+            self.timer = PerfTimer(activate=self.args.perf)
+            self.timer.reset()
         
         # Set device to use
         self.use_cuda = torch.cuda.is_available()
@@ -123,19 +123,25 @@ class Trainer(object):
 
         # Initialize
         self.set_dataset()
-        self.timer.check('set_dataset')
+        if self.args.perf:
+            self.timer.check('set_dataset')
         self.set_network()
-        self.timer.check('set_network')
+        if self.args.perf:
+            self.timer.check('set_network')
         #self.set_dataset()
         #self.timer.check('set_dataset')
         self.set_optimizer()
-        self.timer.check('set_optimizer')
+        if self.args.perf:
+            self.timer.check('set_optimizer')
         self.set_renderer()
-        self.timer.check('set_renderer')
+        if self.args.perf:
+            self.timer.check('set_renderer')
         self.set_logger()
-        self.timer.check('set_logger')
+        if self.args.perf:
+            self.timer.check('set_logger')
         self.set_validator()
-        self.timer.check('set_validator')
+        if self.args.perf:
+            self.timer.check('set_validator')
         
     #######################
     # __init__ helper functions
@@ -158,7 +164,8 @@ class Trainer(object):
         
         self.train_data_loader = DataLoader(self.train_dataset, batch_size=self.args.batch_size, 
                                             shuffle=True, pin_memory=True, num_workers=0)
-        self.timer.check('create_dataloader')
+        if self.args.perf:
+            self.timer.check('create_dataloader')
         log.info("Loaded mesh dataset")
             
     def set_network(self):
@@ -244,7 +251,8 @@ class Trainer(object):
             log.info("Reset DataLoader")
             self.train_data_loader = DataLoader(self.train_dataset, batch_size=self.args.batch_size, 
                                                     shuffle=True, pin_memory=True, num_workers=0)
-            self.timer.check('create_dataloader')
+            if self.args.perf:
+                self.timer.check('create_dataloader')
 
         if epoch == self.args.freeze:
             log.info('Freezing network...')
@@ -258,8 +266,8 @@ class Trainer(object):
         self.log_dict['l2_loss'] = 0
         self.log_dict['total_loss'] = 0
         self.log_dict['total_iter_count'] = 0
-
-        self.timer.check('pre_epoch done')
+        if self.args.perf:
+            self.timer.check('pre_epoch done')
 
     def grow(self, epoch):
         stage = min(self.args.num_lods, (epoch // self.args.grow_every) + 1) # 1 indexed
@@ -365,8 +373,8 @@ class Trainer(object):
             self.save_model(epoch)
         if epoch % self.args.render_every == 0:
             self.render_tb(epoch)
-
-        self.timer.check('post_epoch done')
+        if self.args.perf:
+            self.timer.check('post_epoch done')
     
     #######################
     # post_epoch helper functions
@@ -462,25 +470,27 @@ class Trainer(object):
             self.validate(0)
             return
 
-        for epoch in range(self.args.epochs):    
-            self.timer.check('new epoch...')
+        for epoch in range(self.args.epochs):
+            if self.args.perf:
+                self.timer.check('new epoch...')
             
             self.pre_epoch(epoch)
 
             if self.train_data_loader is not None:
                 self.dataset_size = len(self.train_data_loader)
-            
-            self.timer.check('iteration start')
+            if self.args.perf:
+                self.timer.check('iteration start')
 
             self.iterate(epoch)
-
-            self.timer.check('iterations done')
+            if self.args.perf:
+                self.timer.check('iterations done')
 
             # self.post_epoch(epoch)
 
             if self.args.validator is not None and epoch % self.args.valid_every == 0:
                 self.validate(epoch)
-                self.timer.check('validate')
+                if self.args.perf:
+                    self.timer.check('validate')
         self.save_model(epoch)
         self.writer.close()
     
