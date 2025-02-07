@@ -110,8 +110,8 @@ class Trainer(object):
         self.use_cuda = torch.cuda.is_available()
         self.device = self.args.device
         print("Trainer Device:", self.device)
-        device_name = torch.cuda.get_device_name(device=self.device)
-        log.info(f'Using {device_name} with CUDA v{torch.version.cuda}')
+        # device_name = torch.cuda.get_device_name(device=self.device)
+        # log.info(f'Using {device_name} with CUDA v{torch.version.cuda}')
 
         self.latents = None
         
