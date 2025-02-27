@@ -180,6 +180,8 @@ def parse_options(return_parser=False):
                              help='Grow network every X epochs')
     train_group.add_argument('--loss-sample', type=int, default=-1,
                              help='Sample Nx points for loss importance sampling')
+    train_group.add_argument('--train-features', action='store_true',
+                           help='freeze the network and only train the sparse features Recommend: using in conjunction with --pretrained')
     # One by one trains one level at a time. 
     # Increase starts from [0] and ends up at [0,...,N]
     # Shrink strats from [0,...,N] and ends up at [N]

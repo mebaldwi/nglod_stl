@@ -96,7 +96,7 @@ class Trainer(object):
             model_name (str): model nametag
         """
         #torch.multiprocessing.set_start_method('spawn')
-        # multiprocessing.set_start_method('spawn')
+        multiprocessing.set_start_method('spawn')
 
         self.args = args 
         self.args_str = args_str
@@ -259,6 +259,15 @@ class Trainer(object):
             log.info("Total number of parameters: {}".format(sum(p.numel() for p in self.net.parameters())))
             self.net.freeze()
             self.net.to(self.device)
+
+        if self.args.train_features:
+            # Freeze everything
+            for param in self.net.parameters():
+                param.requires_grad = False
+
+            # Unfreeze feature volumes
+            for i in range(self.args.num_lods):
+                self.net.features[i].fm.requires_grad = True  # Only train FeatureVolume.fm
 
         self.net.train()
         
