@@ -96,7 +96,16 @@ class Trainer(object):
             model_name (str): model nametag
         """
         #torch.multiprocessing.set_start_method('spawn')
-        multiprocessing.set_start_method('spawn')
+        # Safely set the multiprocessing start method
+        import multiprocessing as mp
+        try:
+            mp.get_context('spawn')  # This won't try to set it, just get the context
+        except ValueError:
+            # Only set the context if it hasn't been set or is different
+            try:
+                mp.set_start_method('spawn')
+            except RuntimeError:
+                pass  # Already set, that's fine
 
         self.args = args 
         self.args_str = args_str
