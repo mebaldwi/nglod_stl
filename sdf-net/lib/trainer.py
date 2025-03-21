@@ -50,6 +50,7 @@ from lib.renderer import Renderer
 from lib.tracer import *
 from lib.utils import PerfTimer, image_to_np, suppress_output
 from lib.validator import *
+import random
 
 class Trainer(object):
     """
@@ -122,6 +123,7 @@ class Trainer(object):
         # device_name = torch.cuda.get_device_name(device=self.device)
         # log.info(f'Using {device_name} with CUDA v{torch.version.cuda}')
 
+        self.set_seed(self.args.seed)
         self.latents = None
         
         # In-training variables
@@ -151,10 +153,19 @@ class Trainer(object):
         self.set_validator()
         if self.args.perf:
             self.timer.check('set_validator')
-        
+
     #######################
     # __init__ helper functions
     #######################
+    def set_seed(self, seed):
+        """Set all random seeds for reproducibility"""
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        np.random.seed(seed)
+        random.seed(seed)
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     def set_dataset(self):
         """
@@ -483,7 +494,8 @@ class Trainer(object):
         """
         Override this if some very specific training procedure is needed.
         """
-
+        # Set seed again before training
+        self.set_seed(self.args.seed)
         if self.args.validator is not None and self.args.valid_only:
             self.validate(0)
             return
