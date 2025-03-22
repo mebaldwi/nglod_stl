@@ -469,7 +469,7 @@ class Trainer(object):
             model_fname = os.path.join(self.args.model_path, f'{self.log_fname}-{epoch}.pth')
         else:
             model_fname = os.path.join(self.args.model_path, f'{self.log_fname}.pth')
-        
+
         log.info(f'Saving model checkpoint to: {model_fname}')
         if self.args.save_all:
             torch.save(self.net, model_fname)
@@ -479,6 +479,7 @@ class Trainer(object):
         if self.latents is not None:
             model_fname = os.path.join(self.args.model_path, f'{self.log_fname}_latents.pth')
             torch.save(self.latents.state_dict(), model_fname)
+        print("Model saved to: ", model_fname)
         
     def resample(self, epoch):
         """
